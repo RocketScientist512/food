@@ -1,5 +1,5 @@
 //const heading = React.createElement("h1", {id: "heading" }, "Hello World from React"); 
-import React from "react"
+import React, {lazy, Suspense, useEffect, useState} from "react"
 import ReactDOM from "react-dom/client";
 import Header from "./components/Header";
 import About from "./components/About";
@@ -7,8 +7,13 @@ import Contact from "./components/Contact";
 import Error from "./components/Error";
 import Body from "./components/Body";
 import RestaurauntMenu from "./components/RestaurauntMenu";
+//import Grocery from "./components/Grocery";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import { children } from "react/cjs/react.production.min";
+import UserContext from "./utils/UserContext";
+import { Provider } from "react-redux";
+import appStore from "./utils/appstore";
+import Cart from "./components/Cart";
 
 //#1-2 code provided
 // const parent = React.createElement("div", {id:"parent"}, [
@@ -2197,12 +2202,31 @@ import { children } from "react/cjs/react.production.min";
     )
 }*/
 
+const Grocery = lazy(()=> import("./components/Grocery") ); //import here is a function that will take the path of Grocery component 
+
 const AppLayout = () => {
+
+    const [userName, setUserName] = useState();
+
+    //authentication
+    useEffect(() => {
+        //Make an api call and send user name and password
+        const data = {
+            name: "Rohan Shorey", 
+        } 
+        setUserName(data.name); 
+    },[])
+
+
     return (
-        <div className="app">
-            <Header />
-            <Outlet /> 
-        </div>
+        <Provider store={appStore}>
+            <UserContext.Provider value={{loggedInUser : userName, setUserName}}>
+            <div className="app">
+                <Header />
+                <Outlet /> 
+            </div>
+            </UserContext.Provider>
+        </Provider>
     )
 }
 
@@ -2225,8 +2249,16 @@ const appRouter = createBrowserRouter([
                 element: <Contact />
             },
             {
+                path: "/grocery",
+                element: <Suspense fallback={<h1>Loading....</h1>}><Grocery /></Suspense> //fallback is like a placeholder to render when the code is not available. We pass jsx here. 
+            },
+            {
                 path: "/restauraunts/:resId",
                 element: <RestaurauntMenu />
+            },
+            {
+                path: "/cart",
+                element: <Cart />
             }
         ]
     },

@@ -1,9 +1,12 @@
 import React from "react";
-import RestaurauntCard from "./RestaurauntCard";
+import RestaurauntCard, {withPromotedLabel} from "./RestaurauntCard";
 import ReactDOM from "react-dom/client";
-import { useState, useEffect } from "react";
-import resList from "./utils/mockData";
+import { useState, useEffect, useContext } from "react";
+import resList from "../utils/mockData";
 import Shimmer from "./Shimmer";
+import { Link } from "react-router-dom";
+import useOnlineStatus from "../utils/useOnlineStatus";
+import UserContext from "../utils/UserContext";
 
 const Body = () =>{
 
@@ -13,19 +16,21 @@ const Body = () =>{
     const [filteredRestaraunt, setFilteredRestauraunt] = useState([]);
 
     const [searchText, setSearchText] = useState([]);
+
+    const RestaurauntCardPromoted = withPromotedLabel(RestaurauntCard);
+
     useEffect(()=>{
         fetchData(); 
     },[]);
     
-    //console.log("Body rendered");
 
     const fetchData = async () =>{
-        const data = await fetch("https://www.swiggy.com/dapi/restaurants/list/v5?lat=12.9715987&lng=77.5945627&page_type=DESKTOP_WEB_LISTING");
+        const data = await fetch("https://www.swiggy.com/dapi/restaurants/list/v5?lat=12.9715987&lng=77.5945627&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING");
         const json = await data.json();
         console.log(json); 
 
-        setListofRestauraunt(json.data.cards[2].data.data.cards);
-        setFilteredRestauraunt(json.data.cards[2].data.data.cards);
+        setListofRestauraunt(json.data.cards[2].card.card.gridElements.infoWithStyle.restaurants);
+        setFilteredRestauraunt(json.data.cards[2].card.card.gridElements.infoWithStyle.restaurants);
     }
     // let listOfRestaurauntJS= [
     //         {
@@ -389,13 +394,22 @@ const Body = () =>{
     //     return <Shimmer/>
     // }
 
+    console.log("Body rendered", listOfRestauraunt);
+    const onlineStatus = useOnlineStatus();
+
+    //this is how developers use the dino game in google chrome or others use to make the website interactive.
+    if(onlineStatus ===false){
+        return (<h1>Looks Like you are offline. Please check your internet connection.</h1>);
+    }
+
+    const {loggedInUser, setUserName} = useContext(UserContext);
 
     return listOfRestauraunt.length ==0 ? <Shimmer/>: (
         <div className="body">
-            <div className="filter">
-                <div className="search">
-                    <input type="text" className="search-box" value={searchText} onChange={(e)=>{setSearchText(e.target.value);}} />
-                    <button onClick={()=>{
+            <div className="filter flex">
+                <div className="search m-4 p-4">
+                    <input type="text" className="border border-solid border-black mr-4" value={searchText} onChange={(e)=>{setSearchText(e.target.value);}} />
+                    <button className="px-4 py-2 bg-green-100 m-4 rounded-lg" onClick={()=>{
                         //filter the restauraunt cards and update the UI
                         //need search text
                         console.log(searchText);
@@ -408,31 +422,47 @@ const Body = () =>{
 
                     }}>Search</button>
                 </div>
-                <button 
-                className="filter-btn" 
-                    onClick={()=>{
-                        setListofRestauraunt();
-                            const filteredList = listOfRestauraunt.filter(
-                                (res) => res.data.avgRating >4 
-                            );
-                            setListofRestauraunt(filteredList);
-                         }}
-                    >
-                Top Rated Restaurants</button>
+                <div className="search m-4 p-4 flex items-center">
+                    <button 
+                    className="px-4 py-2 bg-gray-100 rounded-lg" 
+                        onClick={()=>{
+                            setListofRestauraunt();
+                                const filteredList = listOfRestauraunt.filter(
+                                    (res) => res.data.avgRating >4 
+                                );
+                                setListofRestauraunt(filteredList);
+                            }}
+                        >
+                    Top Rated Restaurants</button>
+                </div>
+                <div className="search m-4 p-4 flex items-center">
+                    <label>UserName: </label>
+                    <input className="border border-black p-2" value= {loggedInUser} onChange={(e)=>setUserName(e)}/>
+
+                </div>
+
+              <div className="search m-4 p-4 flex items-center">
                 <button
-                className="original-btn" 
-                         onClick={()=>{
-                            const OriginalList=resList;
-                            setListofRestauraunt(OriginalList);
-                         }}
-                >
-                    Original State
-                </button>
+                    className="px-4 py-2 bg-blue-100 rounded-lg" 
+                            onClick={()=>{
+                                const OriginalList=resList;
+                                setListofRestauraunt(OriginalList);
+                            }}
+                    >
+                        Original State
+                    </button>
+              </div>
+                
             </div>
-            <div className="res-container">
+            <div className="flex flex-wrap">
                 {                    
-                    filteredRestaraunt.map((restaurant) => <RestaurauntCard key={restaurant.data.id} resData={restaurant} />)
+                    filteredRestaraunt.map((restaurant) => (
+                    <Link key={restaurant.info.id} to={"/restauraunts/" + restaurant.info.id}>
+                        {restaurant.info.promoted ? <RestaurauntCardPromoted resData={restaurant}/> : <RestaurauntCard resData={restaurant} />}
+                    </Link>
+                    ))
                 }
+
                 {/*Restauraunt Card*/}
                 {/* <RestaurauntCard resData={resList[0]}/>
                 <RestaurauntCard resData={resList[1]}/>

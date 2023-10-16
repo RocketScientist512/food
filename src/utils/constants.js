@@ -3,3 +3,5 @@ export const LOGO_URL= "https://www.logodesign.net/logo/smoking-burger-with-lett
 
 //we can only have one default export. But here, we have two constant variables. What do we do? 
 
+export const MENU_API ="https://www.swiggy.com/dapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=8.4832&lng=76.9458&&submitAction=ENTER&restaurantId=";
+
