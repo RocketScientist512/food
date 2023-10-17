@@ -53,4 +53,7 @@ git push origin main
 - Install JS Dom library
 - Created a file 'sum.js' 
 - Create a folder '__tests__'
+- Install @babel/preset-react - to make JSX work in test cases
+- Include @babel/preset-react inside the babel config.
+- Include @testing-library : npm i -D @testing-library/jest-dom
 
