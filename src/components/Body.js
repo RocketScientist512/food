@@ -28,9 +28,13 @@ const Body = () =>{
         const data = await fetch("https://www.swiggy.com/dapi/restaurants/list/v5?lat=12.9715987&lng=77.5945627&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING");
         const json = await data.json();
         console.log(json); 
+        console.log("This is the filter");
+        
 
-        setListofRestauraunt(json.data.cards[2].card.card.gridElements.infoWithStyle.restaurants);
-        setFilteredRestauraunt(json.data.cards[2].card.card.gridElements.infoWithStyle.restaurants);
+        setListofRestauraunt(json?.data?.cards[2]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
+        setFilteredRestauraunt(json?.data?.cards[2]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
+
+        
     }
     // let listOfRestaurauntJS= [
     //         {
@@ -395,6 +399,7 @@ const Body = () =>{
     // }
 
     console.log("Body rendered", listOfRestauraunt);
+    
     const onlineStatus = useOnlineStatus();
 
     //this is how developers use the dino game in google chrome or others use to make the website interactive.
@@ -408,16 +413,17 @@ const Body = () =>{
         <div className="body">
             <div className="filter flex">
                 <div className="search m-4 p-4">
-                    <input type="text" className="border border-solid border-black mr-4" value={searchText} onChange={(e)=>{setSearchText(e.target.value);}} />
+                    <input type="text" data-testid="searchInput" className="border border-solid border-black mr-4" value={searchText} onChange={(e)=>{setSearchText(e.target.value);}} />
                     <button className="px-4 py-2 bg-green-100 m-4 rounded-lg" onClick={()=>{
                         //filter the restauraunt cards and update the UI
                         //need search text
                         console.log(searchText);
 
                         let filteredRestaraunt = listOfRestauraunt.filter(
-                            (res)=>res.data.name.toLowerCase().includes(searchText.toLowerCase())
+                            (res)=>res.info.name.toLowerCase().includes(searchText.toLowerCase())
                             );
-                            
+                            console.log("Sharing filtered restauraunt");
+                            console.log(filteredRestaraunt);
                         setFilteredRestauraunt(filteredRestaraunt);
 
                     }}>Search</button>
@@ -426,11 +432,12 @@ const Body = () =>{
                     <button 
                     className="px-4 py-2 bg-gray-100 rounded-lg" 
                         onClick={()=>{
-                            setListofRestauraunt();
+                            setFilteredRestauraunt();
                                 const filteredList = listOfRestauraunt.filter(
-                                    (res) => res.data.avgRating >4 
+                                    (res) => res.info.avgRating >4.4                        
                                 );
-                                setListofRestauraunt(filteredList);
+                                console.log(filteredList);
+                                setFilteredRestauraunt(filteredList);
                             }}
                         >
                     Top Rated Restaurants</button>
@@ -457,8 +464,8 @@ const Body = () =>{
             <div className="flex flex-wrap">
                 {                    
                     filteredRestaraunt.map((restaurant) => (
-                    <Link key={restaurant.info.id} to={"/restauraunts/" + restaurant.info.id}>
-                        {restaurant.info.promoted ? <RestaurauntCardPromoted resData={restaurant}/> : <RestaurauntCard resData={restaurant} />}
+                    <Link key={restaurant?.info.id} to={"/restauraunts/" + restaurant?.info.id}>
+                        {restaurant?.info.promoted ? <RestaurauntCardPromoted resData={restaurant?.info}/> : <RestaurauntCard resData={restaurant?.info} />}
                     </Link>
                     ))
                 }
