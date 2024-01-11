@@ -31,8 +31,8 @@ const Body = () =>{
         console.log("This is the filter");
         
 
-        setListofRestauraunt(json?.data?.cards[2]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
-        setFilteredRestauraunt(json?.data?.cards[2]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
+        setListofRestauraunt(json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
+        setFilteredRestauraunt(json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
 
         
     }
@@ -463,9 +463,9 @@ const Body = () =>{
             </div>
             <div className="flex flex-wrap">
                 {                    
-                    filteredRestaraunt.map((restaurant) => (
-                    <Link key={restaurant?.info.id} to={"/restauraunts/" + restaurant?.info.id}>
-                        {restaurant?.info.promoted ? <RestaurauntCardPromoted resData={restaurant?.info}/> : <RestaurauntCard resData={restaurant?.info} />}
+                    filteredRestaraunt.map((restaurants) => (
+                    <Link key={restaurants?.info.id} to={"/restauraunts/" + restaurants?.info.id}>
+                        {restaurants?.info.promoted ? <RestaurauntCardPromoted resData={restaurants?.info}/> : <RestaurauntCard resData={restaurants?.info} />}
                     </Link>
                     ))
                 }
